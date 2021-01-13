@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+      app: poi
+  name: poi
+  namespace: api
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+        app: poi
+  strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+      type: RollingUpdate
+  template:
+      metadata:
+        labels:
+            app: poi
+        name: poi
+      spec:
+        containers:
+        - image: registryfxn1231.azurecr.io/tripinsights/alex-poi:1.0
+          env:
+            - name: SQL_USER
+              value: sqladminfXn1231
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sql-password-secret-name
+                  key: sql-password-key            
+            - name: SQL_SERVER
+              value: sqlserverfxn1231.database.windows.net
+          imagePullPolicy: Always
+          name: poi
+          ports:
+            - containerPort: 3000
+              hostPort: 80
+              protocol: TCP
+          resources:
+            requests:
+                cpu: 1000m
+                memory: 128Mi
+          securityContext:
+            privileged: false
+          volumeMounts:
+              - name: secrets-store-inline
+                mountPath: "/mnt/secrets-store"
+                readOnly: true          
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "azure-kvname"
+            nodePublishSecretRef:                       # Only required when using service principal mode
+              name: secrets-store-creds                 # Only required when using service principal mode

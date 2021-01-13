@@ -1,0 +1,26 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: tripviewer-deployment
+spec:
+  selector:
+    matchLabels:
+      app: tripviewer
+  replicas: 1 # tells deployment to run 1 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: tripviewer
+    spec:
+      containers:
+      - name: tripviewer
+        image: registryfxn1231.azurecr.io/ts/tripviewer
+        env:
+        - name: TRIPS_API_ENDPOINT
+          value: http://trips
+        - name: USERPROFILE_API_ENDPOINT
+          value: http://userprofile
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+        ports:
+        - containerPort: 8080

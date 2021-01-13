@@ -1,0 +1,64 @@
+apiVersion: rbac.authorization.k8s.io/v1
+
+kind: ClusterRole
+
+metadata:
+
+  # "namespace" omitted since ClusterRoles are not namespaced
+
+  name: viewer-api-web
+
+rules:
+
+- apiGroups: ["", "extensions", "apps"]
+
+  resources: ["*"]
+
+  verbs: ["get","list"]
+
+- apiGroups: ["batch"]
+
+  resources:
+
+  - jobs
+
+  - cronjobs
+
+  verbs: ["*"]
+
+---
+
+
+
+apiVersion: rbac.authorization.k8s.io/v1
+
+# This cluster role binding allows anyone in the "manager" group to read secrets in any namespace.
+
+kind: ClusterRoleBinding
+
+metadata:
+
+  name: viewer-api-web-cross-namespace
+
+subjects:
+
+- kind: Group
+
+  name: 255b91c1-a17a-49a1-af41-48caba820e2d
+
+  apiGroup: rbac.authorization.k8s.io
+
+- kind: Group
+
+  name: e049a567-0142-4bd1-906f-399c78fa1246
+
+  apiGroup: rbac.authorization.k8s.io
+
+roleRef:
+
+  kind: ClusterRole
+
+  name: viewer-api-web
+
+  apiGroup: rbac.authorization.k8s.io
+

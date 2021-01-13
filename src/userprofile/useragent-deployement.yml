@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: userprofile
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: userprofile
+  template:
+    metadata:
+      labels:
+        app: userprofile # the label for the pods and the deployments
+    spec:
+      containers:
+      - name: userprofile
+        image: registryfxn1231.azurecr.io/userprofile:1.0 # IMPORTANT: update with your own repository
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80 # the application listens to this port
+        env:
+        - name: SQL_USER
+          value: "sqladminfXn1231"
+        - name: SQL_PASSWORD
+          value: "mQ0ps4Iq6"
+        - name: SQL_SERVER
+          value: "sqlserverfxn1231.database.windows.net"
+        resources:
+          requests: # minimum resources required
+            cpu: 250m
+            memory: 64Mi
+          limits: # maximum resources allocated
+            cpu: 500m
+            memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trips
+spec:
+  selector:
+    app: trips
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP
+---
+
